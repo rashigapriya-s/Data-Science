@@ -1,0 +1,191 @@
+from google.colab import files
+uploaded = files.upload()
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import IsolationForest
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+# Load dataset
+df = pd.read_csv('creditcard.csv')
+
+# Display first few rows
+df.head()
+
+# Shape of the dataset
+print("Shape:", df.shape)
+
+# Column names
+print("Columns:", df.columns.tolist())
+
+# Data types and non-null values
+df.info()
+
+# Summary statistics for numeric features
+df.describe() 
+
+# Check for missing values
+print(df.isnull().sum())
+
+# Check for duplicates
+print("Duplicate rows:", df.duplicated().sum())
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Distribution of the 'Class' feature (fraudulent vs. non-fraudulent)
+sns.countplot(x='Class', data=df)
+plt.title('Distribution of Fraudulent vs. Non-Fraudulent Transactions')
+plt.xlabel('Class (0: Non-Fraudulent, 1: Fraudulent)')
+plt.ylabel('Count')
+plt.show()
+
+# Relationship between 'Amount' and 'Class'
+sns.boxplot(x='Class', y='Amount', data=df)
+plt.title('Transaction Amount vs. Fraud')
+plt.xlabel('Class (0: Non-Fraudulent, 1: Fraudulent)')
+plt.ylabel('Transaction Amount')
+plt.show()
+
+target = 'Class'
+features = df.columns.drop(target)
+print("Features:", features)
+
+
+# Identify categorical columns
+categorical_cols = df.select_dtypes(include=['object']).columns
+print("Categorical Columns:", categorical_cols.tolist())
+
+
+from sklearn.preprocessing import StandardScaler
+
+# Create a StandardScaler object
+scaler = StandardScaler()
+
+# Scale the features (excluding the target variable 'Class')
+X_scaled = scaler.fit_transform(df_encoded.drop('Class', axis=1))
+
+# Separate the target variable 'Class'
+y = df_encoded['Class']
+
+# Assuming 'categorical_cols' contains the names of your categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression # Changed to LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score # Changed metrics
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Train model
+model = LogisticRegression()  # Changed to LogisticRegression
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+# Calculate metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+
+# Print metrics
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1-score:", f1)
+
+# Sample input (replace values with valid transaction data)
+new_transaction = {
+    'Time': 12345,  # Replace with a transaction time
+    'V1': -1.23,     # Replace with the value of feature V1
+    'V2': 2.34,      # Replace with the value of feature V2
+    # ... (include all other relevant features V3 to V28) 
+    # Include all features from V3 to V28 here with their respective values
+    'V3': 0, # Example - Replace with actual value
+    'V4': 0, # Example - Replace with actual value
+    # ... (continue for V5 to V28)
+    'Amount': 120.50  # Replace with the transaction amount
+}
+
+# Create a DataFrame for the new transaction
+new_transaction_df = pd.DataFrame([new_transaction])
+
+# One-hot encode categorical features if necessary (if you have any in your dataset)
+# ... (apply the same encoding used during training)
+
+
+# Ensure new_transaction_df has the same columns as df_encoded (used for training)
+# 1. Get missing columns:
+missing_cols = set(df_encoded.drop('Class', axis=1).columns) - set(new_transaction_df.columns)
+# 2. Add missing columns to new_transaction_df and fill with 0:
+for col in missing_cols:
+    new_transaction_df[col] = 0 
+
+# 3. Remove extra columns (if any) to match df_encoded's columns:
+extra_cols = set(new_transaction_df.columns) - set(df_encoded.drop('Class', axis=1).columns)
+new_transaction_df = new_transaction_df.drop(columns=list(extra_cols))
+
+# Reorder columns to match the order during training:
+new_transaction_df = new_transaction_df[df_encoded.drop('Class', axis=1).columns]
+
+# Scale the features using the same StandardScaler used during training
+new_transaction_scaled = scaler.transform(new_transaction_df)  
+
+# Make a prediction using the trained model
+prediction = model.predict(new_transaction_scaled)
+
+# Print the prediction
+print("Prediction:", prediction[0])  # 0 for non-fraudulent, 1 for fraudulent
+
+# ... (previous code for data preparation and scaling) ...
+
+# Make a prediction using the trained model
+prediction = model.predict(new_transaction_scaled)
+
+# Print the prediction with formatting
+print("💳 Transaction Prediction:", "Fraudulent" if prediction[0] == 1 else "Non-Fraudulent")
+
+pip install --upgrade gradio
+
+import pandas as pd
+import gradio as gr
+from sklearn.preprocessing import StandardScaler
+
+# Assuming 'model' is your trained model and 'scaler' is your fitted StandardScaler
+def predict_grade(school, sex, age, address, famsize, Pstatus, Medu, Fedu,
+                  Mjob, Fjob, reason, guardian, traveltime, studytime,
+                  failures, schoolsup, famsup, paid, activities, nursery,
+                  higher, internet, romantic, famrel, freetime, goout,
+                  Dalc, Walc, health, absences, G1, G2):
+    # Create input dictionary
+    input_data = {
+        'school': school, 'sex': sex, 'age': int(age), 'address': address, 'famsize': famsize,
+        'Pstatus': Pstatus, 'Medu': int(Medu), 'Fedu': int(Fedu), 'Mjob': Mjob, 'Fjob': Fjob,
+        'reason': reason, 'guardian': guardian, 'traveltime': int(traveltime), 'studytime': int(studytime),
+        'failures': int(failures), 'schoolsup': schoolsup, 'famsup': famsup, 'paid': paid,
+        'activities': activities, 'nursery': nursery, 'higher': higher, 'internet': internet,
+        'romantic': romantic, 'famrel': int(famrel), 'freetime': int(freetime), 'goout': int(goout),
+        'Dalc': int(Dalc), 'Walc': int(Walc), 'health': int(health), 'absences': int(absences),
+        'G1': int(G1), 'G2': int(G2)
+    }
+    # Create DataFrame
+    input_df = pd.DataFrame([input_data])
+    # Combine and encode
+    df_temp = pd.concat([df.drop('G3', axis=1), input_df], ignore_index=True)
+    df_temp_encoded = pd.get_dummies(df_temp, drop_first=True)
+    df_temp_encoded = df_temp_encoded.reindex(columns=df_encoded.drop('G3', axis=1).columns, fill_value=0)
+    # Scale and predict
+    scaled_input = scaler.transform(df_temp_encoded.tail(1))
+    prediction = model.predict(scaled_input)
+    return round(prediction[0], 2)
+
+#launch app
+gr.Interface(fn=predict_grade, inputs=inputs, outputs="text", title="Student Grade Prediction").launch()
+
